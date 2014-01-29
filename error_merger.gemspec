@@ -8,8 +8,8 @@ Gem::Specification.new do |spec|
   spec.version       = ErrorMerger::VERSION
   spec.authors       = ['thomas morgan']
   spec.email         = ['tm@iprog.com']
-  spec.description   = %q{Enables combining error messages on ActiveModel-compliant models.}
-  spec.summary       = %q{Enables combining error messages on ActiveModel-compliant models}
+  spec.description   = %q{Enhances the Error class on ActiveModel-compliant models with merge() and full_sentences() methods.}
+  spec.summary       = %q{Enhances the Error class on ActiveModel-compliant models}
   spec.homepage      = 'https://github.com/zarqman/error_merger'
   spec.license       = 'MIT'
 
