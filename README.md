@@ -37,6 +37,7 @@ Or install it yourself as:
 
   @user.errors.full_messages # => ["Username can't be blank"]
   @user.errors.full_sentences # => ["Username can't be blank."]
+  @user.errors.as_sentences # => "First name can't be blank. Last name can't be blank."
 ```
 
 By default merged errors are prefixed with the model name. In the above example, an error on User might look like: "User: First name must not be blank".

@@ -25,6 +25,10 @@ module ErrorMerger
     m.ends_with?('.') ? m : "#{m}."
   end
 
+  def as_sentences
+    full_sentences.join ' '
+  end
+
 end
 
 ActiveModel::Errors.send :include, ErrorMerger
