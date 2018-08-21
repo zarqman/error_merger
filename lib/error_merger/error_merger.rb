@@ -5,7 +5,7 @@ module ErrorMerger
   #     @user.errors.merge @account, "Account ##{@account.id}: "
   def merge(association, prefix=nil)
     if association.errors.respond_to? :full_message
-      prefix ||= "#{association.class.model_name.human}: "
+      prefix ||= "#{association.errors.instance_variable_get(:@base).class.model_name.human}: "
       association.errors.each do |attr, error|
         add :base, "#{prefix}#{association.errors.full_message(attr, error)}"
       end
