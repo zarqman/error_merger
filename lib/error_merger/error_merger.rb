@@ -31,4 +31,4 @@ module ErrorMerger
 
 end
 
-ActiveModel::Errors.send :include, ErrorMerger
+ActiveModel::Errors.include ErrorMerger
