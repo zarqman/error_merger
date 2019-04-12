@@ -2,17 +2,26 @@ module ErrorMerger
 
   # merges an association's Errors set into the current set
   # eg: @user.errors.merge @account
-  #     @user.errors.merge @account, "Account ##{@account.id}: "
-  def merge(association, prefix=nil)
-    if association.errors.respond_to? :full_message
-      prefix ||= "#{association.errors.instance_variable_get(:@base).class.model_name.human}: "
-      association.errors.each do |attr, error|
-        add :base, "#{prefix}#{association.errors.full_message(attr, error)}"
-      end
+  #     @user.errors.merge @account, "Account ##{@account.id}:"
+  #     @user.errors.merge @account, attribute: :account
+  def merge(assoc_or_errors, prefix=nil, attribute: :base)
+    errors = assoc_or_errors.respond_to?(:errors) ? assoc_or_errors.errors : assoc_or_errors
+
+    if attribute == :base && prefix.nil? && errors.instance_variable_defined?(:@base)
+      prefix = "#{errors.instance_variable_get(:@base).class.model_name.human}: "
     else
-      association.errors.each do |error|
-        add :base, error
-      end
+      prefix ||= nil
+    end
+    prefix = "#{prefix} " if prefix =~ /[a-z0-9]$/i
+
+    if errors.respond_to? :full_messages
+      errors = errors.full_messages
+    elsif errors.is_a? Hash
+      errors = errors.values.flatten
+    end
+
+    errors.each do |error|
+      add attribute, "#{prefix}#{error}"
     end
   end
 
@@ -22,12 +31,14 @@ module ErrorMerger
 
   def full_sentence(attribute, message)
     m = full_message(attribute, message)
-    m.ends_with?('.') ? m : "#{m}."
+    m.end_with?('.') ? m : "#{m}."
   end
 
-  def as_sentences
+  def join_sentences
     full_sentences.join ' '
   end
+
+  alias_method :as_sentences, :join_sentences
 
 end
 
