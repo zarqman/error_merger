@@ -11,40 +11,80 @@ message always ends with a period.
 
 ## Installation
 
-Add this line to your application's Gemfile:
+In your Gemfile, add:
 
     gem 'error_merger'
-
-And then execute:
-
-    $ bundle
-
-Or install it yourself as:
-
-    $ gem install error_merger
 
 
 ## Usage
 
+#### Merging
+
 ```
-  @user = User.new user_params
-  @user.valid? # => false
-  @account = Account.new account_params
-  @account.valid? # => false
-  @account.errors.merge @user
+@user = User.new name: nil
+@user.valid? # => false
+@account = Account.new group: 'invalid'
+@account.valid? # => false
 
-  @account.errors.full_messages # => will include errors for both Account and User
+## By default, will prefix with the merged model's name:
+@account.errors.merge @user
+@account.errors.full_messages  # will include errors for both Account and User
+# => ["Group is invalid", "User: Name can't be blank"]
 
-  @user.errors.full_messages # => ["Username can't be blank"]
-  @user.errors.full_sentences # => ["Username can't be blank."]
-  @user.errors.as_sentences # => "First name can't be blank. Last name can't be blank."
+## Disable the prefix:
+@account.errors.merge @user, ''
+# @account.errors.merge @user, false  # equivalent to ''
+@account.errors.full_messages
+# => ["Group is invalid", "Name can't be blank"]
+
+## Or change it:
+@account.errors.merge @user, 'Member'
+@account.errors.full_messages
+# => ["Group is invalid", "Member Name can't be blank"]
+
+## By default, merged errors are associated with the model, not an association
+## (by adding the errors to :base). An attribute may be specified. Since the
+## standard rendering of the error message will use the attribute name as part
+## of the error message, auto-prefixing is disabled.
+@account.errors.merge @user, attribute: :user
+@account.errors.messages
+# => {group: ["is invalid"], user: ["Name can't be blank"]}
+@account.errors.full_messages
+# => ["Group is invalid", "User Name can't be blank"]
+
+## A prefix can still be added, however:
+@account.errors.merge @user, 'Member', attribute: :user
+@account.errors.full_messages
+# => ["Group is invalid", "User Member Name can't be blank"]
 ```
 
-By default merged errors are prefixed with the model name. In the above example, an error on User might look like: "User: First name must not be blank".
+_Hint: to merge the actual attributes directly, use the built-in `merge!` method instead._
+```
+## This may cause weird behavior if both models have the same attribute (eg: both
+## have a :name attribute).
+@account.errors.merge! @user.errors
+@account.errors.messages
+# => {group: ["is invalid"], name: ["can't be blank"]}
+@account.errors.full_messages
+# => ["Group is invalid", "Name can't be blank"]
+```
 
-The default behavior is the equivalent to: `@account.errors.merge @user, 'User: '`
 
-To skip prefixing, pass an empty string: `''`.
+### Sentences
+
+```
+## Rails default behavior:
+@user.errors.full_messages
+# => ["Name can't be blank"]
+
+## Make errors nicer for display to users:
+@user.errors.full_sentences
+# => ["Name can't be blank."]
+
+## Combine sentences into a single string:
+@user.errors.join_sentences
+# => "First name can't be blank. Last name can't be blank."
+```
 
 
 ## Contributing
