@@ -5,7 +5,11 @@ module ErrorMerger
   #     @user.errors.merge @account, "Account ##{@account.id}:"
   #     @user.errors.merge @account, attribute: :account
   def merge(assoc_or_errors, prefix=nil, attribute: :base)
-    errors = assoc_or_errors.respond_to?(:errors) ? assoc_or_errors.errors : assoc_or_errors
+    if assoc_or_errors.respond_to?(:errors) && assoc_or_errors.errors.is_a?(ActiveModel::Errors)
+      errors = assoc_or_errors.errors
+    else
+      errors = assoc_or_errors
+    end
 
     if attribute == :base && prefix.nil? && errors.instance_variable_defined?(:@base)
       prefix = "#{errors.instance_variable_get(:@base).class.model_name.human}: "
@@ -26,7 +30,14 @@ module ErrorMerger
   end
 
   def full_sentences
-    map{ |attr, m| full_sentence(attr, m) }
+    if defined?(ActiveModel::Error)
+      map do |error|
+        m = error.full_message
+        m.end_with?('.') ? m : "#{m}."
+      end
+    else
+      map{ |attr, m| full_sentence(attr, m) }
+    end
   end
 
   def full_sentence(attribute, message)
