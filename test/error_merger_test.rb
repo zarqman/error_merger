@@ -84,6 +84,9 @@ class ErrorMergerTest < ActiveSupport::TestCase
   test "sentences" do
     assert_equal "Name is invalid.", @author.errors.full_sentence(:name, "is invalid")
     assert_equal "Name is invalid.", @author.errors.full_sentence(:name, "is invalid.")
+    assert_equal "Name is invalid!", @author.errors.full_sentence(:name, "is invalid!")
+    assert_equal "Name is invalid?", @author.errors.full_sentence(:name, "is invalid?")
+    assert_equal "Name is invalid。", @author.errors.full_sentence(:name, "is invalid。")
 
     @author.errors.add :name, :invalid
     assert_equal ["Name can't be blank.", "Name is invalid."], @author.errors.full_sentences

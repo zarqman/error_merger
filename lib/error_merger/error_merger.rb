@@ -33,7 +33,7 @@ module ErrorMerger
     if defined?(ActiveModel::Error)
       map do |error|
         m = error.full_message
-        m.end_with?('.') ? m : "#{m}."
+        m =~ %r{[.?!。]$} ? m : "#{m}."
       end
     else
       map{ |attr, m| full_sentence(attr, m) }
@@ -42,7 +42,7 @@ module ErrorMerger
 
   def full_sentence(attribute, message)
     m = full_message(attribute, message)
-    m.end_with?('.') ? m : "#{m}."
+    m =~ %r{[.?!。]$} ? m : "#{m}."
   end
 
   def join_sentences
